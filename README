@@ -1,4 +1,3 @@
-This is your new Play application
-=================================
+Twitter Bot
 
-This file will be packaged with your application, when using `activator dist`.
+Scala + Play framework + MySQL + twitter4j + Slick
