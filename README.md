@@ -7,7 +7,7 @@
 
 * mysql start
 % mysql.server start
-* mysql stop
+* mysql stop  
 % mysql.server stop
 
 ##︎ Environment
