@@ -1,6 +1,7 @@
 package controllers
 
 import java.io.{PrintWriter, StringWriter}
+import java.nio.file.FileSystems
 
 import play.api.mvc._
 import play.api.cache._
@@ -60,12 +61,21 @@ class Application extends Controller {
   }
 
   // command
-  // curl -X GET http://localhost:9000/randomTweetImage
+  // curl -X GET http://localhost:9000/randTweetWithImage
   def randomTweetImage = Action{
     val twitter = new TwitterFactory().getInstance
-    val abPathOfProject = "/Users/String/scala/TwitterBot/"
-    
+    val abPathOfProject = "/Users/String/scala/TwitterBot"
+    val file = FileSystems.getDefault.getPath(abPathOfProject + "/images/aizu.gif").toFile
 
-    Ok("success!")
+
+
+    try {
+      new TwitterFactory().getInstance.updateStatus(new StatusUpdate("").media(file))
+
+      Ok("tweet successfully")
+    }
+    catch {
+      case e:TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
+    }
   }
 }
