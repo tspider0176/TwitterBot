@@ -3,7 +3,8 @@
 # ~~~~
 
 # Home page
-GET     /                                controllers.Application.index
+GET     /                                controllers.Application.hello
+GET     /index                           controllers.Application.index
 GET     /tweet/:msg                      controllers.Application.tweet(msg: String)
 GET     /followAndRemove                 controllers.Application.followAndRemove
 GET     /randomTweetImage                controllers.Application.randomTweetImage

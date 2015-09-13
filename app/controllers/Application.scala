@@ -9,6 +9,10 @@ import views.html.defaultpages.badRequest
 
 class Application extends Controller {
 
+  def hello = Action{
+    Ok(views.html.index("Your new Application is ready."))
+  }
+
   def index = Action {
     val twitter = new TwitterFactory().getInstance
     val user = twitter.verifyCredentials
