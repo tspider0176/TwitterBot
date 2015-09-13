@@ -1,8 +1,11 @@
 package controllers
 
+import java.io.{PrintWriter, StringWriter}
+
 import play.api.mvc._
 import play.api.cache._
 import twitter4j._
+import views.html.defaultpages.badRequest
 
 class Application extends Controller {
 
@@ -16,6 +19,17 @@ class Application extends Controller {
     val follower = user.getFollowersCount
 
     Ok("Current client: \n" + name + " " + " @" + screen + " " + follow + " " + follower + "\n")
+  }
+
+  def tweet(msg: String) = Action {
+    try {
+      new TwitterFactory().getInstance.updateStatus(new StatusUpdate(msg))
+
+      Ok(msg + "send success")
+    }
+    catch {
+      case e:TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
+    }
   }
 
   // command
@@ -45,6 +59,7 @@ class Application extends Controller {
   // curl -X GET http://localhost:9000/randomTweetImage
   def randomTweetImage = Action{
     val twitter = new TwitterFactory().getInstance
+    val abPathOfProject = "/Users/String/scala/TwitterBot/"
     
 
     Ok("success!")
