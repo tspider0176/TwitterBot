@@ -2,12 +2,12 @@
 
 ## Usage
 * Make twitter4j.properties in conf/  
-* Retouch consumerKey, consumerSecret, accessToken, and accessTokenSecret of your twitter account.  
-    oauth.consumerKey={your consumer key}  
-    oauth.consumerSecret={your consumer secret}  
-    oauth.accessToken={your access token}  
-    oauth.accessTokenSecret={your access token secret}  
-
+* Write following.  
+oauth.consumerKey={your consumer key}  
+oauth.consumerSecret={your consumer secret}  
+oauth.accessToken={your access token}  
+oauth.accessTokenSecret={your access token secret}  
+  
 * Change cloning directory  
 % ./activator  
 % run  
