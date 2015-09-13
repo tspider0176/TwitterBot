@@ -1,9 +1,14 @@
 #  Twitter Control App
 
 ## Usage
-change cloning directory
+* change cloning directory
 % ./activator
 % run
+
+* mysql start
+% mysql.server start
+* mysql stop
+% mysql.server stop
 
 ##︎ Environment
 * Scala 2.11.6
