@@ -1,8 +1,9 @@
 #  Twitter Control App
 
 ## Usage
-* Make twitter4j.properties in conf/  
-* Write following.  
+* Make twitter4j.properties in conf/.  
+% touch twitter4j.properties
+* Add following sentence.  
 oauth.consumerKey={your consumer key}  
 oauth.consumerSecret={your consumer secret}  
 oauth.accessToken={your access token}  
