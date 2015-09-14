@@ -3,27 +3,39 @@
 ## Usage
 * Make twitter4j.properties in conf/.  
 % touch twitter4j.properties
+  
 * Add following sentence.  
 oauth.consumerKey={your consumer key}  
 oauth.consumerSecret={your consumer secret}  
 oauth.accessToken={your access token}  
 oauth.accessTokenSecret={your access token secret}  
   
-* Change cloning directory  
+* Make sure to confirm database configuration in application.conf at conf/  
+db.default.driver=org.h2.Driver  
+db.default.url="jdbc:h2:mem:play"  
+db.default.username=sa  
+db.default.password=""  
+  
+* MySQL server start.  
+% mysql.server start  
+
+* Launch MySQL console.  
+* On MySQL console, create database.  
+% mysql -u \<user> -p \<password>  
+% CREATE DATABASE tweetimagedb;  
+  
+* Change cloned directory.  
 % ./activator  
 % run  
   
-* MySQL start  
-% mysql.server start  
-  
-* MySQL stop  
+* MySQL server stop.  
 % mysql.server stop  
   
 ## Functions
+* Display current user information  
 * Tweet
+* Tweet with random image in images/ (under construction)
 * Auto followBack and auto remove
-* Display current user information
-* Rundomly tweet with image in reserved folder
 
 ## Environment
 * Scala 2.11.6
