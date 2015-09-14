@@ -11,24 +11,24 @@ oauth.accessToken={your access token}
 oauth.accessTokenSecret={your access token secret}  
   
 * Make sure to confirm database configuration in application.conf at conf/  
-db.default.driver=org.h2.Driver  
-db.default.url="jdbc:h2:mem:play"  
-db.default.username=sa  
+db.default.driver=com.mysql.jdbc.Driver  
+db.default.url="jdbc:mysql://localhost/tweetimagedb"  
+db.default.username=root  
 db.default.password=""  
   
 * MySQL server start.  
 % mysql.server start  
 
 * Launch MySQL console.  
-* On MySQL console, create database.  
 % mysql -u \<user> -p \<password>  
+* Create database.  
 % CREATE DATABASE tweetimagedb;  
   
 * Change cloned directory.  
 % ./activator  
 % run  
   
-* MySQL server stop.  
+* After use, MySQL server stop.  
 % mysql.server stop  
   
 ## Functions
