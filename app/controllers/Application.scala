@@ -1,12 +1,19 @@
 package controllers
 
-import java.io.{PrintWriter, StringWriter}
+import java.io._
 import java.nio.file.FileSystems
+import java.time.Duration
 
+import apple.laf.JRSUIUtils.Images
 import play.api.mvc._
-import play.api.cache._
+import slick.dbio.DBIO
 import twitter4j._
-import views.html.defaultpages.badRequest
+import slick._
+import scala.slick._
+import scala.concurrent._
+import slick.driver.MySQLDriver.api._
+
+import play.api.db.DB
 
 class Application extends Controller {
 
@@ -30,10 +37,19 @@ class Application extends Controller {
     try {
       new TwitterFactory().getInstance.updateStatus(new StatusUpdate(msg))
 
-      Ok(msg + "send success")
+      Ok(msg + "\nsend success")
     }
     catch {
       case e:TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
+    }
+  }
+
+  def tweet(msg: String, file: File) {
+    try {
+      new TwitterFactory().getInstance.updateStatus(new StatusUpdate(msg).media(file))
+    }
+    catch {
+      case e:TwitterException => throw e
     }
   }
 
@@ -62,20 +78,60 @@ class Application extends Controller {
 
   // command
   // curl -X GET http://localhost:9000/randTweetWithImage
-  def randomTweetImage = Action{
+  def tweetWithRandomImage = Action{
     val twitter = new TwitterFactory().getInstance
-    val abPathOfProject = "/Users/String/scala/TwitterBot"
-    val file = FileSystems.getDefault.getPath(abPathOfProject + "/images/aizu.gif").toFile
 
+    val db = Database.forURL(
+      "jdbc:mysql://localhost/tweetimagedb?user=root&password=",
+      driver = "com.mysql.jdbc.Driver"
+    )
 
+    val files = new File("images/").listFiles().map(_.getName).toList.collect {
+      case x if (x.endsWith(".gif")) => x
+      case x if (x.endsWith(".jpeg")) => x
+      case x if (x.endsWith(".jpg")) => x
+      case x if (x.endsWith(".png")) => x
+      case _ => null
+    }.filter(_ != null).zipWithIndex
 
+    println(files.mkString("\n"))
+
+    val images: TableQuery[Images] = TableQuery[Images]
     try {
-      new TwitterFactory().getInstance.updateStatus(new StatusUpdate("").media(file))
+      db.run {
+        val insertImageQ = images ++= files.map {
+          tup: (String, Int) => (tup._2 + 1, tup._1)
+        }
 
-      Ok("tweet successfully")
+        //insert action
+        DBIO.seq(
+          images.schema.drop,
+          images.schema.create,
+          insertImageQ
+        )
+      }
     }
     catch {
-      case e:TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
+      case e:ExecutionException => BadRequest("Exception: Execution exception")
     }
+    finally{
+     db.close
+    }
+
+    //idの範囲のランダムな数字を発生、そのidに紐付けされている画像を選択して添付
+    val res = images.length
+    println(res)
+    Ok("test")
+/*
+    try {
+      val file = FileSystems.getDefault.getPath("images/" + imageFile).toFile
+      tweet("No.1", file)
+
+      Ok("tweet successfully with image")
+    }
+    catch{
+      case e: TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
+    }
+*/
   }
 }

@@ -12,9 +12,10 @@ libraryDependencies ++= Seq(
   "org.twitter4j" % "twitter4j-core" % "4.0.4",
   ws,
   specs2 % Test,
-  "mysql" % "mysql-connector-java" % "5.1.36",
   "com.typesafe.slick" % "slick_2.11" % "3.0.3",
-  "com.typesafe.play" % "play-slick_2.11" % "1.0.1"
+  "org.slf4j" % "slf4j-nop" % "1.7.12",
+  "com.typesafe.play" %% "play-slick" % "1.0.1",
+  "mysql" % "mysql-connector-java" % "5.1.36"
 )
 
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
