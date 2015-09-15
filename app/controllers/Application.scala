@@ -2,18 +2,16 @@ package controllers
 
 import java.io._
 import java.nio.file.FileSystems
-import java.time.Duration
+import scala.concurrent.duration.Duration
 
-import apple.laf.JRSUIUtils.Images
+
+//import apple.laf.JRSUIUtils.Images
 import play.api.mvc._
 import slick.dbio.DBIO
 import twitter4j._
-import slick._
-import scala.slick._
 import scala.concurrent._
 import slick.driver.MySQLDriver.api._
-
-import play.api.db.DB
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class Application extends Controller {
 
@@ -41,15 +39,7 @@ class Application extends Controller {
     }
     catch {
       case e:TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
-    }
-  }
-
-  def tweet(msg: String, file: File) {
-    try {
-      new TwitterFactory().getInstance.updateStatus(new StatusUpdate(msg).media(file))
-    }
-    catch {
-      case e:TwitterException => throw e
+      case e:Exception => throw e
     }
   }
 
@@ -94,44 +84,54 @@ class Application extends Controller {
       case _ => null
     }.filter(_ != null).zipWithIndex
 
-    println(files.mkString("\n"))
-
     val images: TableQuery[Images] = TableQuery[Images]
     try {
-      db.run {
-        val insertImageQ = images ++= files.map {
-          tup: (String, Int) => (tup._2 + 1, tup._1)
-        }
+      Await.result(
+        db.run {
+          val insertImageQ = images ++= files.map {
+            tup: (String, Int) => (tup._2 + 1, tup._1)
+          }
+          DBIO.seq(
+            images.schema.drop,
+            images.schema.create,
+            insertImageQ
+          )
+        }, Duration.Inf
+      )
 
-        //insert action
-        DBIO.seq(
-          images.schema.drop,
-          images.schema.create,
-          insertImageQ
-        )
+      val imageIdQ = sql"SELECT IMAGE_ID FROM IMAGES ORDER BY RAND() LIMIT 1".as[String]
+      val imageId = Await.result(db.run(imageIdQ), Duration.Inf)
+
+      val idFilter = Compiled { k: Rep[Int] =>
+        images.filter(_.id === k)
       }
+
+      Await.result(
+        db.run(
+          idFilter(imageId(0).toInt).result.map { r =>
+            println("DEBUG: Seq (Vector) of selected column")
+            println("- " + r.head._1 + " + " + r.head._2)
+
+            try {
+              val file = FileSystems.getDefault.getPath("images/" + r.head._2).toFile
+              new TwitterFactory().getInstance.updateStatus(new StatusUpdate("No." + r.head._1).media(file))
+            }
+            catch {
+              case e: TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
+              case e: Exception => BadRequest(e.getStackTrace.toString)
+            }
+          }
+        ), Duration.Inf
+      )
+
+      Ok("tweet with image successfully")
     }
     catch {
-      case e:ExecutionException => BadRequest("Exception: Execution exception")
+      case e:ExecutionException => BadRequest("execution exception" + e.getStackTrace.toString)
+      case e:Exception => BadRequest("exception: " + e.getMessage)
     }
-    finally{
-     db.close
+    finally {
+      db.close
     }
-
-    //idの範囲のランダムな数字を発生、そのidに紐付けされている画像を選択して添付
-    val res = images.length
-    println(res)
-    Ok("test")
-/*
-    try {
-      val file = FileSystems.getDefault.getPath("images/" + imageFile).toFile
-      tweet("No.1", file)
-
-      Ok("tweet successfully with image")
-    }
-    catch{
-      case e: TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
-    }
-*/
   }
 }
