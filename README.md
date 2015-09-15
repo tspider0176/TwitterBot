@@ -1,4 +1,5 @@
 #  Twitter Control App
+For study Play framework and Slick.
 
 ## Usage
 * Make twitter4j.properties in conf/.  
