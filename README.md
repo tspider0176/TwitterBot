@@ -35,7 +35,7 @@ db.default.password=""
 ## Functions
 * Display current user information  
 * Tweet
-* Tweet with random image in images/ (under construction)
+* Tweet with random image in images/
 * Auto followBack and auto remove
 
 ## Environment
