@@ -4,8 +4,6 @@ import java.io._
 import java.nio.file.FileSystems
 import scala.concurrent.duration.Duration
 
-
-//import apple.laf.JRSUIUtils.Images
 import play.api.mvc._
 import slick.dbio.DBIO
 import twitter4j._
@@ -84,7 +82,7 @@ class Application extends Controller {
       case _ => null
     }.filter(_ != null).zipWithIndex
 
-    val images: TableQuery[Images] = TableQuery[Images]
+    val images: TableQuery[TweetImages] = TableQuery[TweetImages]
     try {
       Await.result(
         db.run {
