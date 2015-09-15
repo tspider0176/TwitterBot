@@ -2,11 +2,14 @@ package controllers
 
 import java.io._
 import java.nio.file.FileSystems
+import java.text.SimpleDateFormat
 import scala.concurrent.duration.Duration
 
 import play.api.mvc._
 import slick.dbio.DBIO
 import twitter4j._
+import twitter4j.Query
+import twitter4j.conf._
 import scala.concurrent._
 import slick.driver.MySQLDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -29,6 +32,8 @@ class Application extends Controller {
     Ok("Current client: \n" + name + " " + " @" + screen + " " + follow + " " + follower + "\n")
   }
 
+  // command
+  // curl -X GET http://localhost:9000/tweet/[tweet sentence]
   def tweet(msg: String) = Action {
     try {
       new TwitterFactory().getInstance.updateStatus(new StatusUpdate(msg))
@@ -131,5 +136,18 @@ class Application extends Controller {
     finally {
       db.close
     }
+  }
+
+  //TODO
+  //ここで自分のタイムラインを取得
+  //特定のキーワードをつぶやいてる人がいたらその人に対してリプを飛ばす
+  //tweetWithRandomImageの仕様を変更してユーザーにリプを飛ばすようにする
+  // command
+  // curl -X GET http://localhost:9000/tweetBot
+  def getTimeLine = Action{
+    val twitter = new TwitterFactory().getInstance
+
+
+    Ok("test")
   }
 }
