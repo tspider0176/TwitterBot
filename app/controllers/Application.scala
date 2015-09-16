@@ -8,8 +8,7 @@ import scala.concurrent.duration.Duration
 import play.api.mvc._
 import slick.dbio.DBIO
 import twitter4j._
-import twitter4j.Query
-import twitter4j.conf._
+import twitter4j.Status
 import scala.concurrent._
 import slick.driver.MySQLDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -145,8 +144,15 @@ class Application extends Controller {
   // command
   // curl -X GET http://localhost:9000/tweetBot
   def getTimeLine = Action{
-    val twitter = new TwitterFactory().getInstance
+    try {
+      val twitter = new TwitterFactory().getInstance
+      val htl = twitter.getMentionsTimeline
+      
 
+    }
+    catch{
+      case e: TwitterException => BadRequest("Twitter Exception" + e.getErrorMessage)
+    }
 
     Ok("test")
   }
