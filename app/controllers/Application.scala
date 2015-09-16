@@ -79,10 +79,10 @@ class Application extends Controller {
     )
 
     val files = new File("images/").listFiles().map(_.getName).toList.collect {
-      case x if (x.endsWith(".gif")) => x
-      case x if (x.endsWith(".jpeg")) => x
-      case x if (x.endsWith(".jpg")) => x
-      case x if (x.endsWith(".png")) => x
+      case x if x.endsWith(".gif") => x
+      case x if x.endsWith(".jpeg") => x
+      case x if x.endsWith(".jpg") => x
+      case x if x.endsWith(".png") => x
       case _ => null
     }.filter(_ != null).zipWithIndex
 
@@ -139,10 +139,6 @@ class Application extends Controller {
     }
   }
 
-  //TODO
-  //ここで自分のタイムラインを取得
-  //特定のキーワードをつぶやいてる人がいたらその人に対してリプを飛ばす
-  //tweetWithRandomImageの仕様を変更してユーザーにリプを飛ばすようにする
   // command
   // curl -X GET http://localhost:9000/tweetBot
   def getTimeLine = Action{
@@ -154,17 +150,17 @@ class Application extends Controller {
         i <- 0 to htl.size-1
       } yield htl.get(i).getText match{
         case x if x.contains("スタイル") => (htl.get(i).getId, htl.get(i).getUser.getScreenName)
-        case _ => (0, null)
+        case _ => (0L, null)
       }
 
       println(specifyTweet)
 
-      val mRepStatId = specifyTweet.filter(_ != (0, null)).toList
+      val mRepStatId = specifyTweet.filter(_ != (0L, null)).toList
       println("DEBUG: reply list: \n" + mRepStatId)
 
       for(in <- mRepStatId) {
         println("DEBUG: reply to: " + in)
-        replyWithRandomImage(in._1, in._2)
+        replyWithRandomImage(mRepStatId.head._1, mRepStatId.head._2)
       }
 
       Ok("success")
@@ -183,10 +179,10 @@ class Application extends Controller {
     )
 
     val files = new File("images/").listFiles().map(_.getName).toList.collect {
-      case x if (x.endsWith(".gif")) => x
-      case x if (x.endsWith(".jpeg")) => x
-      case x if (x.endsWith(".jpg")) => x
-      case x if (x.endsWith(".png")) => x
+      case x if x.endsWith(".gif") => x
+      case x if x.endsWith(".jpeg") => x
+      case x if x.endsWith(".jpg") => x
+      case x if x.endsWith(".png") => x
       case _ => null
     }.filter(_ != null).zipWithIndex
 
