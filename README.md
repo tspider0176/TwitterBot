@@ -31,6 +31,8 @@ db.default.password=""
 % mysql -u \<user> -p \<password>  
 * Create database.  
 % CREATE DATABASE tweetimagedb;  
+* Exit MySQL console.
+% exit;  
 
 ---
 
