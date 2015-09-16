@@ -10,17 +10,21 @@ Feel free to refer to this project.
 % touch twitter4j.properties
   
 * Add following sentence.  
-oauth.consumerKey={your consumer key}  
+
+```oauth.consumerKey={your consumer key}  
 oauth.consumerSecret={your consumer secret}  
 oauth.accessToken={your access token}  
 oauth.accessTokenSecret={your access token secret}  
-  
+```
+
 * Make sure to confirm database configuration in application.conf at conf/  
 db.default.driver=com.mysql.jdbc.Driver  
 db.default.url="jdbc:mysql://localhost/tweetimagedb"  
 db.default.username=root  
 db.default.password=""  
+
 ---
+
 * MySQL server start.  
 % mysql.server start  
 
@@ -28,7 +32,9 @@ db.default.password=""
 % mysql -u \<user> -p \<password>  
 * Create database.  
 % CREATE DATABASE tweetimagedb;  
+
 ---
+
 * Change project cloned directory.  
 % ./activator  
   
@@ -37,7 +43,9 @@ db.default.password=""
   
 * Access to below on web browser  
 http://localhost:9000/  
+
 ---
+
 * Server stop
 % Ctrl-d  
   
