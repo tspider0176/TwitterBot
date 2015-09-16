@@ -46,6 +46,21 @@ class Application extends Controller {
   }
 
   // command
+  // curl -X GET http://localhost:9000/delete/[tweet status id]
+  def delete(statId: Long) = Action{
+    try{
+      val twitter = new TwitterFactory().getInstance
+
+      twitter.destroyStatus(statId)
+
+      Ok("tweet deletion success")
+    }
+    catch{
+      case e: TwitterException => BadRequest
+    }
+  }
+
+  // command
   // curl -X GET http://localhost:9000/followAndRemove
   def followAndRemove = Action{
     val twitter = new TwitterFactory().getInstance
@@ -128,7 +143,6 @@ class Application extends Controller {
       )
 
       Ok("tweet with image successfully")
-      Redirect("http://localhost:9000/")
     }
     catch {
       case e:ExecutionException => BadRequest("execution exception" + e.getStackTrace.toString)
@@ -141,7 +155,7 @@ class Application extends Controller {
 
   // command
   // curl -X GET http://localhost:9000/tweetBot
-  def getTimeLine = Action{
+  def tweetBot = Action{
     try {
       val twitter = new TwitterFactory().getInstance
       val htl = twitter.getHomeTimeline
@@ -166,7 +180,8 @@ class Application extends Controller {
       Ok("success")
     }
     catch{
-      case e: TwitterException => BadRequest("Twitter Exception" + e.getErrorMessage)
+      case e: TwitterException => BadRequest("Twitter Exception: " + e.getErrorMessage)
+      case e: Exception => BadRequest
     }
   }
 

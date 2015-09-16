@@ -5,10 +5,15 @@
 # Home page
 GET     /                                controllers.Application.hello
 GET     /index                           controllers.Application.index
+
 GET     /tweet/:msg                      controllers.Application.tweet(msg: String)
+GET     /delete/:statId                  controllers.Application.delete(statId: Long)
+GET     /delete                          controllers.Application.delete1
+
 GET     /followAndRemove                 controllers.Application.followAndRemove
+
 GET     /tweetWithRandImg                controllers.Application.tweetWithRandomImage
-GET     /tweetBot                        controllers.Application.getTimeLine
+GET     /tweetBot                        controllers.Application.tweetBot
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
