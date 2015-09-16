@@ -20,7 +20,7 @@ db.default.driver=com.mysql.jdbc.Driver
 db.default.url="jdbc:mysql://localhost/tweetimagedb"  
 db.default.username=root  
 db.default.password=""  
-  
+---
 * MySQL server start.  
 % mysql.server start  
 
@@ -28,8 +28,8 @@ db.default.password=""
 % mysql -u \<user> -p \<password>  
 * Create database.  
 % CREATE DATABASE tweetimagedb;  
-  
-* Change cloned directory.  
+---
+* Change project cloned directory.  
 % ./activator  
   
 * On activator console, run server  
@@ -37,11 +37,11 @@ db.default.password=""
   
 * Access to below on web browser  
 http://localhost:9000/  
-  
+---
 * Server stop
 % Ctrl-d  
   
-* After use, MySQL server stop.  
+* MySQL server stop.  
 % mysql.server stop  
   
 ## Functions
