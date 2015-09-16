@@ -116,7 +116,8 @@ class Application extends Controller {
 
             try {
               val file = FileSystems.getDefault.getPath("images/" + r.head._2).toFile
-              new TwitterFactory().getInstance.updateStatus(new StatusUpdate("No." + r.head._1).media(file))
+              val statUpdate = new StatusUpdate("No." + r.head._1).media(file)
+              new TwitterFactory().getInstance.updateStatus(statUpdate)
             }
             catch {
               case e: TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
@@ -127,6 +128,7 @@ class Application extends Controller {
       )
 
       Ok("tweet with image successfully")
+      Redirect("http://localhost:9000/")
     }
     catch {
       case e:ExecutionException => BadRequest("execution exception" + e.getStackTrace.toString)
@@ -146,14 +148,97 @@ class Application extends Controller {
   def getTimeLine = Action{
     try {
       val twitter = new TwitterFactory().getInstance
-      val htl = twitter.getMentionsTimeline
-      
+      val htl = twitter.getHomeTimeline
 
+      val specifyTweet = for{
+        i <- 0 to htl.size-1
+      } yield htl.get(i).getText match{
+        case x if x.contains("スタイル") => (htl.get(i).getId, htl.get(i).getUser.getScreenName)
+        case _ => (0, null)
+      }
+
+      println(specifyTweet)
+
+      val mRepStatId = specifyTweet.filter(_ != (0, null)).toList
+      println("DEBUG: reply list: \n" + mRepStatId)
+
+      for(in <- mRepStatId) {
+        println("DEBUG: reply to: " + in)
+        replyWithRandomImage(in._1, in._2)
+      }
+
+      Ok("success")
     }
     catch{
       case e: TwitterException => BadRequest("Twitter Exception" + e.getErrorMessage)
     }
+  }
 
-    Ok("test")
+  def replyWithRandomImage(repToId: Long, screenName: String) :Unit= {
+    val twitter = new TwitterFactory().getInstance
+
+    val db = Database.forURL(
+      "jdbc:mysql://localhost/tweetimagedb?user=root&password=",
+      driver = "com.mysql.jdbc.Driver"
+    )
+
+    val files = new File("images/").listFiles().map(_.getName).toList.collect {
+      case x if (x.endsWith(".gif")) => x
+      case x if (x.endsWith(".jpeg")) => x
+      case x if (x.endsWith(".jpg")) => x
+      case x if (x.endsWith(".png")) => x
+      case _ => null
+    }.filter(_ != null).zipWithIndex
+
+    val images: TableQuery[TweetImages] = TableQuery[TweetImages]
+    try {
+      Await.result(
+        db.run {
+          val insertImageQ = images ++= files.map {
+            tup: (String, Int) => (tup._2 + 1, tup._1)
+          }
+          DBIO.seq(
+            images.schema.drop,
+            images.schema.create,
+            insertImageQ
+          )
+        }, Duration.Inf
+      )
+
+      val imageIdQ = sql"SELECT IMAGE_ID FROM IMAGES ORDER BY RAND() LIMIT 1".as[String]
+      val imageId = Await.result(db.run(imageIdQ), Duration.Inf)
+
+      val idFilter = Compiled { k: Rep[Int] =>
+        images.filter(_.id === k)
+      }
+
+      Await.result(
+        db.run(
+          idFilter(imageId(0).toInt).result.map { r =>
+            println("DEBUG: Seq (Vector) of selected column")
+            println("- " + r.head._1 + " + " + r.head._2)
+
+            try {
+              val file = FileSystems.getDefault.getPath("images/" + r.head._2).toFile
+              val statUpdate = new StatusUpdate("@" + screenName + "\nNo." + r.head._1).media(file)
+              statUpdate.setInReplyToStatusId(repToId)
+              new TwitterFactory().getInstance.updateStatus(statUpdate)
+              println("DEBUG: reply to status ID:" + repToId)
+            }
+            catch {
+              case e: TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
+              case e: Exception => BadRequest(e.getStackTrace.toString)
+            }
+          }
+        ), Duration.Inf
+      )
+    }
+    catch {
+      case e:ExecutionException => BadRequest("execution exception" + e.getStackTrace.toString)
+      case e:Exception => BadRequest("exception: " + e.getMessage)
+    }
+    finally {
+      db.close
+    }
   }
 }
