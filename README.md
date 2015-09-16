@@ -10,12 +10,11 @@ Feel free to refer to this project.
 % touch twitter4j.properties
   
 * Add following sentence.  
-
-```oauth.consumerKey={your consumer key}  
+oauth.consumerKey={your consumer key}  
 oauth.consumerSecret={your consumer secret}  
 oauth.accessToken={your access token}  
 oauth.accessTokenSecret={your access token secret}  
-```
+
 
 * Make sure to confirm database configuration in application.conf at conf/  
 db.default.driver=com.mysql.jdbc.Driver  
