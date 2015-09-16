@@ -60,8 +60,8 @@ http://localhost:9000/
 * Tweet
 * Delete tweet
 * Tweet with random image in images/
-* Get user timeline and reply to particular users
-  -- In this code, users who tweet specific word.
+* Get user timeline and reply to particular users  
+  -- In this code, users who tweet specific word.  
 * Auto followBack and auto remove
 Details in routes in conf/ and Application.scala in app/
 
