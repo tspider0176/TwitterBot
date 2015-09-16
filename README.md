@@ -29,9 +29,11 @@ db.default.password=""
 
 * Launch MySQL console.  
 % mysql -u \<user> -p \<password>  
+  
 * Create database.  
 % CREATE DATABASE tweetimagedb;  
-* Exit MySQL console.
+  
+* Exit MySQL console.  
 % exit;  
 
 ---
@@ -39,15 +41,15 @@ db.default.password=""
 * Change project cloned directory.  
 % ./activator  
   
-* On activator console, run server  
+* On activator console, run server.  
 % run  
   
-* Access to below on web browser  
+* Access to below on web browser.  
 http://localhost:9000/  
 
 ---
 
-* Server stop
+* Server stop.  
 % Ctrl-d  
   
 * MySQL server stop.  
