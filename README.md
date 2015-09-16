@@ -1,7 +1,10 @@
 #  Twitter Control App
-Very beginning of learning Scala, Play framework and Slick.
+Very beginning of learning Scala, Play framework and Slick.  
 Feel free to refer to this project. 
 
+## Language
+* Scala 2.11.6
+  
 ## Usage
 * Make twitter4j.properties in conf/.  
 % touch twitter4j.properties
@@ -28,7 +31,15 @@ db.default.password=""
   
 * Change cloned directory.  
 % ./activator  
+  
+* On activator console, run server  
 % run  
+  
+* Access to below on web browser  
+http://localhost:9000/  
+  
+* Server stop
+% Ctrl-d  
   
 * After use, MySQL server stop.  
 % mysql.server stop  
@@ -44,7 +55,6 @@ db.default.password=""
 Details in routes in conf/ and Application.scala in app/
 
 ## Environment
-* Scala 2.11.6
 * Play framework 2.4.3
 * MySQL 5.6.26 Homebrew
 * mysql-connector-java 5.1.36
