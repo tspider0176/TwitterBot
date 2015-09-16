@@ -167,8 +167,11 @@ class Application extends Controller {
         case _ => (0L, null)
       }
 
-      println(specifyTweet)
-
+      //TODO
+      //現在20件の取得制限があるため取得漏れがありえる
+      //前回取得したツイート以降のツイートを取得等（最後に読み取ったidを記録するなど）
+      //上が実装できれば問題無いが、逆に取得重複してしまう可能性あり
+      //status idが重複している場合リストから削除するなど対策必要
       val mRepStatId = specifyTweet.filter(_ != (0L, null)).toList
       println("DEBUG: reply list: \n" + mRepStatId)
 

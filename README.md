@@ -1,5 +1,6 @@
 #  Twitter Control App
-For study Play framework and Slick.
+Very beginning of learning Scala, Play framework and Slick.
+Feel free to refer to this project. 
 
 ## Usage
 * Make twitter4j.properties in conf/.  
@@ -35,8 +36,12 @@ db.default.password=""
 ## Functions
 * Display current user information  
 * Tweet
+* Delete tweet
 * Tweet with random image in images/
+* Get user timeline and reply to particular users
+  -- In this code, users who tweet specific word.
 * Auto followBack and auto remove
+Details in routes in conf/ and Application.scala in app/
 
 ## Environment
 * Scala 2.11.6
