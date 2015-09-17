@@ -8,6 +8,7 @@ import scala.concurrent.duration.Duration
 import play.api.mvc._
 import play.api.cache._
 import play.api.Play.current
+import play.api.libs.iteratee._
 
 import slick.dbio.DBIO
 import twitter4j._
@@ -65,7 +66,7 @@ class Application extends Controller {
 
   // command
   // curl -X GET http://localhost:9000/timeline
-  def getTimeLine = Action{
+  def getTimeLine = Action{ request =>
     val twitter = new TwitterFactory().getInstance
     val htl = twitter.getHomeTimeline
 
@@ -73,7 +74,7 @@ class Application extends Controller {
       i <- 0 to htl.size-1
     } yield (htl.get(i).getUser.getScreenName, htl.get(i).getText)
 
-    val escTL = timeLine.toList.map{tup:(String, String) =>
+    val escTL = timeLine.toList.map { tup: (String, String) =>
       tup._2 match {
         case x if x.contains("<") => (tup._1, x.replaceAll("<", "&lt;"))
         case x if x.contains(">") => (tup._1, x.replaceAll(">", "&gt;"))
