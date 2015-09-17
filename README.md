@@ -59,6 +59,7 @@ http://localhost:9000/
 * Display current user information  
 * Tweet
 * Delete tweet
+* Get user timeline
 * Tweet with random image in images/
 * Get user timeline and reply to particular users  
   - In this code, users who tweet specific word.  
@@ -71,4 +72,5 @@ Details in routes in conf/ and Application.scala in app/
 * mysql-connector-java 5.1.36
 * twitter4j 4.0.4
 * Slick 3.0.3
-* play-slick 1.0.1
+* Play-slick 1.0.1
+* Bootstrap 3.3.5

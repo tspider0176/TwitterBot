@@ -1,13 +1,41 @@
-@(tweet: (String, String))
+@(tweets: List[(String, String)])
 
 <!DOCTYPE html>
 
 <html lang="en">
     <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="@routes.Assets.versioned("stylesheets/bootstrap/css/bootstrap.min.css")">
+
         <title>Your TimeLine</title>
     </head>
     <body>
-        @@@tweet._1 <br>
-        @Html(tweet._2.replaceAll("\n", "<br>"))<br><br>
+        <div class="page-header">
+            <h1>Your TimeLine</h1>
+        </div>
+        <div class="row">
+            <div class="col-md-10">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>User Id</th>
+                        <th>Tweet</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        @for(tweet <- tweets.zipWithIndex){
+                            <tr>
+                                <th>@{tweet._2 + 1}</th>
+                                <th>@@@tweet._1._1 </th>
+                                <th>@Html(tweet._1._2.replaceAll("\n", "<br>"))</th>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </body>
 </html>

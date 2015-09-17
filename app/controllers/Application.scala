@@ -65,7 +65,7 @@ class Application extends Controller {
 
   // command
   // curl -X GET http://localhost:9000/timeline
-  def timeline = Action{
+  def getTimeLine = Action{
     val twitter = new TwitterFactory().getInstance
     val htl = twitter.getHomeTimeline
 
