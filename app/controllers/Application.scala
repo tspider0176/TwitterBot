@@ -6,6 +6,9 @@ import java.text.SimpleDateFormat
 import scala.concurrent.duration.Duration
 
 import play.api.mvc._
+import play.api.cache._
+import play.api.Play.current
+
 import slick.dbio.DBIO
 import twitter4j._
 import twitter4j.Status
@@ -16,7 +19,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class Application extends Controller {
 
   def hello = Action{
-    Ok(views.html.index("Your new Application is ready."))
+    Redirect("index")
   }
 
   def index = Action {
@@ -58,6 +61,29 @@ class Application extends Controller {
     catch{
       case e: TwitterException => BadRequest
     }
+  }
+
+  // command
+  // curl -X GET http://localhost:9000/timeline
+  def timeline = Action{
+    val twitter = new TwitterFactory().getInstance
+    val htl = twitter.getHomeTimeline
+
+    val timeLine = for{
+      i <- 0 to htl.size-1
+    } yield (htl.get(i).getUser.getScreenName, htl.get(i).getText)
+
+    val escTL = timeLine.toList.map{tup:(String, String) =>
+      tup._2 match {
+        case x if x.contains("<") => (tup._1, x.replaceAll("<", "&lt;"))
+        case x if x.contains(">") => (tup._1, x.replaceAll(">", "&gt;"))
+        case x if x.contains("&") => (tup._1, x.replaceAll("&", "&amp;"))
+        case x if x.contains("\"") => (tup._1, x.replaceAll("\"", "&quot;"))
+        case _ => (tup._1, tup._2)
+      }
+    }
+
+    Ok(views.html.index(escTL))
   }
 
   // command

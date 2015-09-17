@@ -1,8 +1,5 @@
-@(message: String)
+@(tweets: List[(String, String)])
 
-@main("Welcome to Play") {
-
-    @play20.welcome(message)
-
+@for(tweet <- tweets) {
+    @main(tweet)
 }
-

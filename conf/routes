@@ -8,7 +8,7 @@ GET     /index                           controllers.Application.index
 
 GET     /tweet/:msg                      controllers.Application.tweet(msg: String)
 GET     /delete/:statId                  controllers.Application.delete(statId: Long)
-GET     /delete                          controllers.Application.delete1
+GET     /timeline                        controllers.Application.timeline
 
 GET     /followAndRemove                 controllers.Application.followAndRemove
 
