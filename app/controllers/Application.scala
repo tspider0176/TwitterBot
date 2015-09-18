@@ -39,21 +39,23 @@ class Application extends Controller {
   }
 
   // command
-  // curl -X GET http://localhost:9000/tweet/[tweet sentence]
-  def tweet(msg: String) = Action {
-    try {
-      new TwitterFactory().getInstance.updateStatus(new StatusUpdate(msg))
+  // curl -H "Content-Type: text/plain" -d 'message' http://localhost:9000/tweet
+  def tweet = Action{ request=>
+    try{
+      val body: AnyContent = request.body
+      val textBody: Option[String] = body.asText
+      new TwitterFactory().getInstance.updateStatus(new StatusUpdate(textBody.get))
 
-      Ok(msg + "\nsend success")
+      Ok("tweet send success")
     }
-    catch {
-      case e:TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
-      case e:Exception => throw e
+    catch{
+      case e: TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
+      case e: Exception => BadRequest
     }
   }
 
   // command
-  // curl -X GET http://localhost:9000/delete/[tweet status id]
+  // curl -X DELETE http://localhost:9000/delete/[tweet status id]
   def delete(statId: Long) = Action{
     try{
       val twitter = new TwitterFactory().getInstance
@@ -180,6 +182,16 @@ class Application extends Controller {
     }
     finally {
       db.close
+    }
+  }
+
+  def tweet(msg: String) = {
+    try {
+      new TwitterFactory().getInstance.updateStatus(new StatusUpdate(msg))
+    }
+    catch {
+      case e:TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
+      case e:Exception => throw e
     }
   }
 
