@@ -215,31 +215,17 @@ class Application extends Controller {
   }
 
   def replyWithRandomImage(repToId: Long, screenName: String) :Unit= {
-    val tweetimagedb = new TweetImageDB
-
-    tweetimagedb.registerImage
-
     val db = Database.forURL(
       "jdbc:mysql://localhost/tweetimagedb?user=root&password=",
       driver = "com.mysql.jdbc.Driver"
     )
 
+    val tweetimagedb = new TweetImageDB
+
+    tweetimagedb.registerImage
+
     val images: TableQuery[TweetImages] = TableQuery[TweetImages]
     try {
-      Await.result(
-        db.run {
-          val insertImageQ = images ++= files.map {
-            tup: (String, Int) => TweetImage(tup._2 + 1, tup._1)
-          }
-
-          DBIO.seq(
-            images.schema.drop,
-            images.schema.create,
-            insertImageQ
-          )
-        }, Duration.Inf
-      )
-
       val imageId = tweetimagedb.getRandImage
 
       val idFilter = Compiled { k: Rep[Int] =>
