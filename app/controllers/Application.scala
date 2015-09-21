@@ -3,6 +3,8 @@ package controllers
 import java.io._
 import java.nio.file.FileSystems
 import java.text.SimpleDateFormat
+import models.TweetImage
+
 import scala.concurrent.duration.Duration
 
 import play.api.mvc._
@@ -17,8 +19,7 @@ import scala.concurrent._
 import slick.driver.MySQLDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import infrastructures.TweetImages
-import models.TweetImageDB
+import infrastructures.{TweetImageDB, TweetImages}
 
 //TODO
 //Controller肥大化に伴うリファクタリング
@@ -121,19 +122,18 @@ class Application extends Controller {
   // command
   // curl -X GET http://localhost:9000/randTweetWithImage
   def tweetWithRandomImage = Action{
+
     val db = Database.forURL(
       "jdbc:mysql://localhost/tweetimagedb?user=root&password=",
       driver = "com.mysql.jdbc.Driver"
     )
 
-    val tweetimagedb = TweetImageDB
+    try{
+      val tweetimagedb = new TweetImageDB
+      tweetimagedb.registerImage
 
-    tweetimagedb.getAndRegister
-
-    val images: TableQuery[TweetImages] = TableQuery[TweetImages]
-    try {
-      val imageIdQ = sql"SELECT IMAGE_ID FROM IMAGES ORDER BY RAND() LIMIT 1".as[String]
-      val imageId = Await.result(db.run(imageIdQ), Duration.Inf)
+      val images: TableQuery[TweetImages] = TableQuery[TweetImages]
+      val imageId = tweetimagedb.getRandImage
 
       val idFilter = Compiled { k: Rep[Int] =>
         images.filter(_.id === k)
@@ -143,11 +143,11 @@ class Application extends Controller {
         db.run(
           idFilter(imageId(0).toInt).result.map { r =>
             println("DEBUG: Seq (Vector) of selected column")
-            println("- " + r.head._1 + " + " + r.head._2)
+            println("- " + r.head.id + " + " + r.head.filename)
 
             try {
-              val file = FileSystems.getDefault.getPath("images/" + r.head._2).toFile
-              val statUpdate = new StatusUpdate("No." + r.head._1).media(file)
+              val file = FileSystems.getDefault.getPath("images/" + r.head.filename).toFile
+              val statUpdate = new StatusUpdate("No." + r.head.id).media(file)
               new TwitterFactory().getInstance.updateStatus(statUpdate)
             }
             catch {
@@ -215,28 +215,23 @@ class Application extends Controller {
   }
 
   def replyWithRandomImage(repToId: Long, screenName: String) :Unit= {
-    val twitter = new TwitterFactory().getInstance
+    val tweetimagedb = new TweetImageDB
+
+    tweetimagedb.registerImage
 
     val db = Database.forURL(
       "jdbc:mysql://localhost/tweetimagedb?user=root&password=",
       driver = "com.mysql.jdbc.Driver"
     )
 
-    val files = new File("images/").listFiles().map(_.getName).toList.collect {
-      case x if x.endsWith(".gif") => x
-      case x if x.endsWith(".jpeg") => x
-      case x if x.endsWith(".jpg") => x
-      case x if x.endsWith(".png") => x
-      case _ => null
-    }.filter(_ != null).zipWithIndex
-
     val images: TableQuery[TweetImages] = TableQuery[TweetImages]
     try {
       Await.result(
         db.run {
           val insertImageQ = images ++= files.map {
-            tup: (String, Int) => (tup._2 + 1, tup._1)
+            tup: (String, Int) => TweetImage(tup._2 + 1, tup._1)
           }
+
           DBIO.seq(
             images.schema.drop,
             images.schema.create,
@@ -245,8 +240,7 @@ class Application extends Controller {
         }, Duration.Inf
       )
 
-      val imageIdQ = sql"SELECT IMAGE_ID FROM IMAGES ORDER BY RAND() LIMIT 1".as[String]
-      val imageId = Await.result(db.run(imageIdQ), Duration.Inf)
+      val imageId = tweetimagedb.getRandImage
 
       val idFilter = Compiled { k: Rep[Int] =>
         images.filter(_.id === k)
@@ -256,11 +250,11 @@ class Application extends Controller {
         db.run(
           idFilter(imageId(0).toInt).result.map { r =>
             println("DEBUG: Seq (Vector) of selected column")
-            println("- " + r.head._1 + " + " + r.head._2)
+            println("- " + r.head.id + " + " + r.head.filename)
 
             try {
-              val file = FileSystems.getDefault.getPath("images/" + r.head._2).toFile
-              val statUpdate = new StatusUpdate("@" + screenName + "\nNo." + r.head._1).media(file)
+              val file = FileSystems.getDefault.getPath("images/" + r.head.filename).toFile
+              val statUpdate = new StatusUpdate("@" + screenName + "\nNo." + r.head.id).media(file)
               statUpdate.setInReplyToStatusId(repToId)
               new TwitterFactory().getInstance.updateStatus(statUpdate)
               println("DEBUG: reply to status ID:" + repToId)
