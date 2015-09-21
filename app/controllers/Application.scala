@@ -17,6 +17,8 @@ import scala.concurrent._
 import slick.driver.MySQLDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import infrastructures.TweetImages
+
 //TODO
 //Controller肥大化に伴うリファクタリング
 //MVCモデル

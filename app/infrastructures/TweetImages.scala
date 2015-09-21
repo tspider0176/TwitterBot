@@ -1,4 +1,4 @@
-package controllers
+package infrastructures
 
 import slick.driver.MySQLDriver.api._
 import slick.lifted._
