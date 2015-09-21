@@ -18,6 +18,7 @@ import slick.driver.MySQLDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import infrastructures.TweetImages
+import models.TweetImageDB
 
 //TODO
 //Controller肥大化に伴うリファクタリング
@@ -120,36 +121,17 @@ class Application extends Controller {
   // command
   // curl -X GET http://localhost:9000/randTweetWithImage
   def tweetWithRandomImage = Action{
-    val twitter = new TwitterFactory().getInstance
-
     val db = Database.forURL(
       "jdbc:mysql://localhost/tweetimagedb?user=root&password=",
       driver = "com.mysql.jdbc.Driver"
     )
 
-    val files = new File("images/").listFiles().map(_.getName).toList.collect {
-      case x if x.endsWith(".gif") => x
-      case x if x.endsWith(".jpeg") => x
-      case x if x.endsWith(".jpg") => x
-      case x if x.endsWith(".png") => x
-      case _ => null
-    }.filter(_ != null).zipWithIndex
+    val tweetimagedb = TweetImageDB
+
+    tweetimagedb.getAndRegister
 
     val images: TableQuery[TweetImages] = TableQuery[TweetImages]
     try {
-      Await.result(
-        db.run {
-          val insertImageQ = images ++= files.map {
-            tup: (String, Int) => (tup._2 + 1, tup._1)
-          }
-          DBIO.seq(
-            images.schema.drop,
-            images.schema.create,
-            insertImageQ
-          )
-        }, Duration.Inf
-      )
-
       val imageIdQ = sql"SELECT IMAGE_ID FROM IMAGES ORDER BY RAND() LIMIT 1".as[String]
       val imageId = Await.result(db.run(imageIdQ), Duration.Inf)
 
