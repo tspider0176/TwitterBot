@@ -19,7 +19,7 @@ import scala.concurrent._
 import slick.driver.MySQLDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import infrastructures.{TweetImageDB, TweetImages}
+import infrastructures._
 
 //TODO
 //Controller肥大化に伴うリファクタリング
@@ -129,7 +129,7 @@ class Application extends Controller {
     )
 
     try{
-      val tweetimagedb = new TweetImageDB
+      val tweetimagedb = TweetImages
       tweetimagedb.registerImage
 
       val images: TableQuery[TweetImages] = TableQuery[TweetImages]
@@ -220,7 +220,7 @@ class Application extends Controller {
       driver = "com.mysql.jdbc.Driver"
     )
 
-    val tweetimagedb = new TweetImageDB
+    val tweetimagedb = TweetImages
 
     tweetimagedb.registerImage
 
