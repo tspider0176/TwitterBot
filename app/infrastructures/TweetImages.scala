@@ -1,16 +1,14 @@
 package infrastructures
 
 import java.io.File
+import java.util.Random
 
-import slick.dbio.DBIO
 import slick.driver.MySQLDriver.api._
 
 import scala.concurrent._
 import scala.concurrent.duration.Duration
 
 import models._
-
-import java.util.Random
 
 /**
  * Created by String on 15/09/13.
@@ -28,11 +26,76 @@ object TweetImages extends DAO {
     driver = "com.mysql.jdbc.Driver"
   )
 
-  def insert(image: TweetImage):Unit ={
+  // Create
+  def insert(image: TweetImage): Unit = {
     try {
       Await.result(
         db.run(
           TweetImages += image
+        ), Duration.Inf
+      )
+    }
+    catch {
+      case e: ExecutionException => println(e.getMessage)
+      case e: Exception => println(e.getMessage)
+    }
+  }
+
+  // Read
+  // SELECT * FROM TweetImages
+  def select(): Seq[TweetImage] = {
+    try{
+      Await.result(
+        db.run(
+          TweetImages.result
+        ), Duration.Inf
+      )
+    }
+    catch{
+      case e: ExecutionException => throw e
+      case e: Exception => throw e
+    }
+  }
+
+  // Read
+  // SELECT * FROM TweetImages WHERE id == [id]
+  def findById(id: Int): Seq[TweetImage] ={
+    try {
+      Await.result(
+        db.run(
+          TweetImages.filter(_.id === id).result
+        ), Duration.Inf
+      )
+    }
+    catch{
+      case e: ExecutionException => throw e
+      case e: Exception => throw e
+    }
+  }
+
+  // Update
+  // UPDATE TweetImages SET [TweetImage] WHERE id == [id]
+  def updateId(id: Int, ti: TweetImage): Unit = {
+    try {
+      Await.result(
+        db.run(
+          TweetImages.filter(_.id === id).update(ti)
+        ), Duration.Inf
+      )
+    }
+    catch {
+      case e: ExecutionException => println(e.getMessage)
+      case e: Exception => println(e.getMessage)
+    }
+  }
+
+  // Delete (all element)
+  // DELETE FROM TweetImages
+  def deleteAll():Unit ={
+    try {
+      Await.result(
+        db.run(
+          TweetImages.delete
         ), Duration.Inf
       )
     }
@@ -42,20 +105,18 @@ object TweetImages extends DAO {
     }
   }
 
-  def findById(id: Int): Seq[TweetImage] ={
-    try {
-      Await.result(
-        db.run(
-          TweetImages filter {
-            _.id === id
-          } result
-        ), Duration.Inf
-      )
-    }
-    catch{
-      case e: ExecutionException => throw e
-      case e: Exception => throw e
-    }
+  // Delete (designate id)
+  // DELETE FROM TweetImages WHERE id == [id]
+  def deleteId(id: Int):Unit={
+    Await.result(
+      db.run(
+        TweetImages.filter(_.id === id).delete
+      ),Duration.Inf
+    )
+  }
+
+  def closeDB: Unit ={
+    db.close
   }
 
   def registerImageToDB:Unit ={

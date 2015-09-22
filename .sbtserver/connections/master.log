@@ -1,0 +1,7 @@
+New log file opened at Wed Sep 23 01:19:39 JST 2015 by 21827@wlan3879.u-aizu.ac.jp
+Taking next connection to: 51757
+New client attempting to connect on port: 51758-51757
+  Address = /163.143.255.69:51757
+This client on port 51758 has uuid d592ff8d-8119-4876-b253-ac1e9d2e32e8 configName activator humanReadableName Activator protocolVersion 3 featureTags Vector()
+Connected Clients: activator-d592ff8d-8119-4876-b253-ac1e9d2e32e8
+Taking next connection to: 51757

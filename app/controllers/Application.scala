@@ -26,7 +26,7 @@ class Application extends Controller {
     val follow = user.getFriendsCount
     val follower = user.getFollowersCount
 
-    Ok("Current client: \n" + name + " " + " @" + screen + " " + follow + " " + follower + "\n")
+    Ok("Current client: \n" + name + " " + " @" + screen + " " + follow + " " + follower + "\n\nRegistered Images :\n" + TweetImages.select)
   }
 
   // command
@@ -109,25 +109,22 @@ class Application extends Controller {
   // command
   // curl -X GET http://localhost:9000/tweetWithRandImg
   def tweetWithRandomImage = Action{
-    try{
-      TweetImages.registerImageToDB
+    TweetImages.registerImageToDB
 
-      try {
-        val file = FileSystems.getDefault.getPath("images/" + TweetImages.getRandImage.filename).toFile
-        val statUpdate = new StatusUpdate("No." + TweetImages.getRandImage.id).media(file)
-        new TwitterFactory().getInstance.updateStatus(statUpdate)
-      }
-      catch {
-        case e: TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
-        case e: Exception => BadRequest(e.getStackTrace.toString)
-      }
-
-      Ok("tweet with image successfully")
+    try {
+      val file = FileSystems.getDefault.getPath("images/" + TweetImages.getRandImage.filename).toFile
+      val statUpdate = new StatusUpdate("No." + TweetImages.getRandImage.id).media(file)
+      new TwitterFactory().getInstance.updateStatus(statUpdate)
     }
     catch {
-      case e:ExecutionException => BadRequest("execution exception" + e.getStackTrace.toString)
-      case e:Exception => BadRequest("exception: " + e.getLocalizedMessage + "\n" + e.getMessage)
+      case e: TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
+      case e: Exception => BadRequest(e.getStackTrace.toString)
     }
+    finally{
+      TweetImages.closeDB
+    }
+
+    Ok("tweet with image successfully")
   }
 
   def tweet(msg: String) = {
@@ -176,22 +173,19 @@ class Application extends Controller {
   }
 
   def replyWithRandomImage(repToId: Long, screenName: String) :Unit= {
-    try {
-      TweetImages.registerImageToDB
+    TweetImages.registerImageToDB
 
-      try {
-        val file = FileSystems.getDefault.getPath("images/" + TweetImages.getRandImage.filename).toFile
-        val statUpdate = new StatusUpdate("No." + TweetImages.getRandImage.id).media(file)
-        new TwitterFactory().getInstance.updateStatus(statUpdate)
-      }
-      catch {
-        case e: TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
-        case e: Exception => BadRequest(e.getStackTrace.toString)
-      }
+    try {
+      val file = FileSystems.getDefault.getPath("images/" + TweetImages.getRandImage.filename).toFile
+      val statUpdate = new StatusUpdate("No." + TweetImages.getRandImage.id).media(file)
+      new TwitterFactory().getInstance.updateStatus(statUpdate)
     }
     catch {
-      case e:ExecutionException => BadRequest("execution exception" + e.getStackTrace.toString)
-      case e:Exception => BadRequest("exception: " + e.getMessage)
+      case e: TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
+      case e: Exception => BadRequest(e.getStackTrace.toString)
+    }
+    finally{
+      TweetImages.closeDB
     }
   }
 }
