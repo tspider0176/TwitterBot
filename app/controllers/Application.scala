@@ -5,9 +5,6 @@ import java.nio.file.FileSystems
 import play.api.mvc._
 
 import twitter4j._
-import twitter4j.Status
-import scala.concurrent._
-import scala.concurrent.ExecutionContext.Implicits.global
 
 import infrastructures._
 
