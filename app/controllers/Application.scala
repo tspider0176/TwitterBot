@@ -1,29 +1,16 @@
 package controllers
 
-import java.io._
 import java.nio.file.FileSystems
-import java.text.SimpleDateFormat
-import models.TweetImage
-
-import scala.concurrent.duration.Duration
 
 import play.api.mvc._
-import play.api.cache._
-import play.api.Play.current
-import play.api.libs.iteratee._
 
-import slick.dbio.DBIO
 import twitter4j._
 import twitter4j.Status
 import scala.concurrent._
-import slick.driver.MySQLDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import infrastructures._
 
-//TODO
-//Controller肥大化に伴うリファクタリング
-//MVCモデル
 class Application extends Controller {
 
   def hello = Action{

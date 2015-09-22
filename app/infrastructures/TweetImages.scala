@@ -10,7 +10,7 @@ import scala.concurrent.duration.Duration
 
 import models._
 
-import java.util.{NoSuchElementException, Random}
+import java.util.Random
 
 /**
  * Created by String on 15/09/13.
@@ -58,7 +58,7 @@ object TweetImages extends DAO {
     }
   }
 
-  def registerImageToDB ={
+  def registerImageToDB:Unit ={
     val files = new File("images/").listFiles().map(_.getName).toList.collect {
       case x if x.endsWith(".gif") => x
       case x if x.endsWith(".jpeg") => x
@@ -67,21 +67,10 @@ object TweetImages extends DAO {
       case _ => null
     }.filter(_ != null).zipWithIndex
 
-    val images: TableQuery[TweetImages] = TableQuery[TweetImages]
     try {
-      Await.result(
-        db.run {
-          val insertImageQ = images ++= files.map {
-            ti : (String, Int) => TweetImage(ti._2 + 1, ti._1)
-          }.toIterable
-
-          DBIO.seq(
-            images.schema.drop,
-            images.schema.create,
-            insertImageQ
-          )
-        }, Duration.Inf
-      )
+      files.foreach {
+        ti: (String, Int) => insert(TweetImage(ti._2 + 1, ti._1))
+      }
     }
     catch {
       case e:ExecutionException => println("DEBUG: " + e.getMessage)
