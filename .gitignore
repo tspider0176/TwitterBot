@@ -8,3 +8,5 @@ target
 /RUNNING_PID
 conf/twitter4j.properties
 .DS_Store
+/.sbtserver
+
