@@ -27,6 +27,7 @@ object TweetImages extends DAO {
   )
 
   // Create
+  // INSERT INTO TweetImages VALUES TweetImage([given])
   def insert(image: TweetImage): Unit = {
     try {
       Await.result(
@@ -38,6 +39,28 @@ object TweetImages extends DAO {
     catch {
       case e: ExecutionException => println(e.getMessage)
       case e: Exception => println(e.getMessage)
+    }
+  }
+
+  // Create
+  // INSERT INTO TweetImages VALUES TweetImage([files from images/])
+  def registerImageToDB:Unit ={
+    val files = new File("images/").listFiles().map(_.getName).toList.collect {
+      case x if x.endsWith(".gif") => x
+      case x if x.endsWith(".jpeg") => x
+      case x if x.endsWith(".jpg") => x
+      case x if x.endsWith(".png") => x
+      case _ => null
+    }.filter(_ != null).zipWithIndex
+
+    try {
+      files.foreach {
+        ti: (String, Int) => insert(TweetImage(ti._2 + 1, ti._1))
+      }
+    }
+    catch {
+      case e:ExecutionException => println("DEBUG: " + e.getMessage)
+      case e:Exception => println("DEBUG: " + e.getMessage)
     }
   }
 
@@ -66,6 +89,26 @@ object TweetImages extends DAO {
           TweetImages.filter(_.id === id).result
         ), Duration.Inf
       )
+    }
+    catch{
+      case e: ExecutionException => throw e
+      case e: Exception => throw e
+    }
+  }
+
+  // Read
+  // SELECT * FROM TweetImages WHERE id == [random number of 1 until (SELECT COUNT(*) FROM TweetImages)]
+  def getRandImage: TweetImage ={
+    try {
+      val id = new Random().nextInt(
+        Await.result(
+          db.run(
+            TweetImages.length.result
+          ),Duration.Inf
+        )
+      ) + 1
+
+      findById(id).head
     }
     catch{
       case e: ExecutionException => throw e
@@ -117,43 +160,5 @@ object TweetImages extends DAO {
 
   def closeDB: Unit ={
     db.close
-  }
-
-  def registerImageToDB:Unit ={
-    val files = new File("images/").listFiles().map(_.getName).toList.collect {
-      case x if x.endsWith(".gif") => x
-      case x if x.endsWith(".jpeg") => x
-      case x if x.endsWith(".jpg") => x
-      case x if x.endsWith(".png") => x
-      case _ => null
-    }.filter(_ != null).zipWithIndex
-
-    try {
-      files.foreach {
-        ti: (String, Int) => insert(TweetImage(ti._2 + 1, ti._1))
-      }
-    }
-    catch {
-      case e:ExecutionException => println("DEBUG: " + e.getMessage)
-      case e:Exception => println("DEBUG: " + e.getMessage)
-    }
-  }
-
-  def getRandImage: TweetImage ={
-    try {
-      val id = new Random().nextInt(
-        Await.result(
-          db.run(
-            TweetImages.length.result
-          ),Duration.Inf
-        )
-      ) + 1
-
-      findById(id).head
-    }
-    catch{
-      case e: ExecutionException => throw e
-      case e: Exception => throw e
-    }
   }
 }
