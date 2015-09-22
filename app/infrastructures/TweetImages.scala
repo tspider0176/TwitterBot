@@ -10,6 +10,8 @@ import scala.concurrent.duration.Duration
 
 import models._
 
+import java.util.{NoSuchElementException, Random}
+
 /**
  * Created by String on 15/09/13.
  */
@@ -26,7 +28,37 @@ object TweetImages extends DAO {
     driver = "com.mysql.jdbc.Driver"
   )
 
-  def registerImage: Unit ={
+  def insert(image: TweetImage):Unit ={
+    try {
+      Await.result(
+        db.run(
+          TweetImages += image
+        ), Duration.Inf
+      )
+    }
+    catch{
+      case e: ExecutionException => println(e.getMessage)
+      case e: Exception => println(e.getMessage)
+    }
+  }
+
+  def findById(id: Int): Seq[TweetImage] ={
+    try {
+      Await.result(
+        db.run(
+          TweetImages filter {
+            _.id === id
+          } result
+        ), Duration.Inf
+      )
+    }
+    catch{
+      case e: ExecutionException => throw e
+      case e: Exception => throw e
+    }
+  }
+
+  def registerImageToDB ={
     val files = new File("images/").listFiles().map(_.getName).toList.collect {
       case x if x.endsWith(".gif") => x
       case x if x.endsWith(".jpeg") => x
@@ -55,27 +87,23 @@ object TweetImages extends DAO {
       case e:ExecutionException => println("DEBUG: " + e.getMessage)
       case e:Exception => println("DEBUG: " + e.getMessage)
     }
-    finally {
-      db.close
-    }
   }
 
-  def getRandImage: Vector[String]= {
-    val db = Database.forURL(
-      "jdbc:mysql://localhost/tweetimagedb?user=root&password=",
-      driver = "com.mysql.jdbc.Driver"
-    )
-
+  def getRandImage: TweetImage ={
     try {
-      val imageIdQ = sql"SELECT IMAGE_ID FROM IMAGES ORDER BY RAND() LIMIT 1".as[String]
-      Await.result(db.run(imageIdQ), Duration.Inf)
+      val id = new Random().nextInt(
+        Await.result(
+          db.run(
+            TweetImages.length.result
+          ),Duration.Inf
+        )
+      ) + 1
+
+      findById(id).head
     }
     catch{
       case e: ExecutionException => throw e
       case e: Exception => throw e
-    }
-    finally{
-      db.close
     }
   }
 }

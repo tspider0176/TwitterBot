@@ -120,52 +120,26 @@ class Application extends Controller {
   }
 
   // command
-  // curl -X GET http://localhost:9000/randTweetWithImage
+  // curl -X GET http://localhost:9000/tweetWithRandImg
   def tweetWithRandomImage = Action{
-
-    val db = Database.forURL(
-      "jdbc:mysql://localhost/tweetimagedb?user=root&password=",
-      driver = "com.mysql.jdbc.Driver"
-    )
-
     try{
-      val tweetimagedb = TweetImages
-      tweetimagedb.registerImage
+      TweetImages.registerImageToDB
 
-      val images: TableQuery[TweetImages] = TableQuery[TweetImages]
-      val imageId = tweetimagedb.getRandImage
-
-      val idFilter = Compiled { k: Rep[Int] =>
-        images.filter(_.id === k)
+      try {
+        val file = FileSystems.getDefault.getPath("images/" + TweetImages.getRandImage.filename).toFile
+        val statUpdate = new StatusUpdate("No." + TweetImages.getRandImage.id).media(file)
+        new TwitterFactory().getInstance.updateStatus(statUpdate)
       }
-
-      Await.result(
-        db.run(
-          idFilter(imageId(0).toInt).result.map { r =>
-            println("DEBUG: Seq (Vector) of selected column")
-            println("- " + r.head.id + " + " + r.head.filename)
-
-            try {
-              val file = FileSystems.getDefault.getPath("images/" + r.head.filename).toFile
-              val statUpdate = new StatusUpdate("No." + r.head.id).media(file)
-              new TwitterFactory().getInstance.updateStatus(statUpdate)
-            }
-            catch {
-              case e: TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
-              case e: Exception => BadRequest(e.getStackTrace.toString)
-            }
-          }
-        ), Duration.Inf
-      )
+      catch {
+        case e: TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
+        case e: Exception => BadRequest(e.getStackTrace.toString)
+      }
 
       Ok("tweet with image successfully")
     }
     catch {
       case e:ExecutionException => BadRequest("execution exception" + e.getStackTrace.toString)
-      case e:Exception => BadRequest("exception: " + e.getMessage)
-    }
-    finally {
-      db.close
+      case e:Exception => BadRequest("exception: " + e.getLocalizedMessage + "\n" + e.getMessage)
     }
   }
 
@@ -215,50 +189,22 @@ class Application extends Controller {
   }
 
   def replyWithRandomImage(repToId: Long, screenName: String) :Unit= {
-    val db = Database.forURL(
-      "jdbc:mysql://localhost/tweetimagedb?user=root&password=",
-      driver = "com.mysql.jdbc.Driver"
-    )
-
-    val tweetimagedb = TweetImages
-
-    tweetimagedb.registerImage
-
-    val images: TableQuery[TweetImages] = TableQuery[TweetImages]
     try {
-      val imageId = tweetimagedb.getRandImage
+      TweetImages.registerImageToDB
 
-      val idFilter = Compiled { k: Rep[Int] =>
-        images.filter(_.id === k)
+      try {
+        val file = FileSystems.getDefault.getPath("images/" + TweetImages.getRandImage.filename).toFile
+        val statUpdate = new StatusUpdate("No." + TweetImages.getRandImage.id).media(file)
+        new TwitterFactory().getInstance.updateStatus(statUpdate)
       }
-
-      Await.result(
-        db.run(
-          idFilter(imageId(0).toInt).result.map { r =>
-            println("DEBUG: Seq (Vector) of selected column")
-            println("- " + r.head.id + " + " + r.head.filename)
-
-            try {
-              val file = FileSystems.getDefault.getPath("images/" + r.head.filename).toFile
-              val statUpdate = new StatusUpdate("@" + screenName + "\nNo." + r.head.id).media(file)
-              statUpdate.setInReplyToStatusId(repToId)
-              new TwitterFactory().getInstance.updateStatus(statUpdate)
-              println("DEBUG: reply to status ID:" + repToId)
-            }
-            catch {
-              case e: TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
-              case e: Exception => BadRequest(e.getStackTrace.toString)
-            }
-          }
-        ), Duration.Inf
-      )
+      catch {
+        case e: TwitterException => BadRequest(e.getStatusCode + ": " + e.getErrorMessage)
+        case e: Exception => BadRequest(e.getStackTrace.toString)
+      }
     }
     catch {
       case e:ExecutionException => BadRequest("execution exception" + e.getStackTrace.toString)
       case e:Exception => BadRequest("exception: " + e.getMessage)
-    }
-    finally {
-      db.close
     }
   }
 }
