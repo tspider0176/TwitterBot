@@ -23,6 +23,8 @@ class Application extends Controller {
     val follow = user.getFriendsCount
     val follower = user.getFollowersCount
 
+    //TODO
+    //view使う
     Ok("Current client: \n" + name + " " + " @" + screen + " " + follow + " " + follower + "\n\nRegistered Images :\n" + TweetImages.select)
   }
 
@@ -62,6 +64,8 @@ class Application extends Controller {
   def getTimeLine = Action{ request =>
     val twitter = new TwitterFactory().getInstance
     val htl = twitter.getHomeTimeline
+
+    //htl.toArray
 
     val timeLine = for{
       i <- 0 to htl.size-1

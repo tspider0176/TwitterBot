@@ -13,7 +13,7 @@ import models._
 /**
  * Created by String on 15/09/13.
  */
-class TweetImages(tag: Tag) extends Table[TweetImage](tag, "IMAGES") {
+class TweetImages(tag: Tag) extends Table[TweetImage](tag, "TweetImages") {
     def id = column[Int]("IMAGE_ID", O.PrimaryKey)
     def filename  = column[String]("FILE_NAME")
 
@@ -22,7 +22,7 @@ class TweetImages(tag: Tag) extends Table[TweetImage](tag, "IMAGES") {
 
 object TweetImages extends DAO {
   val db = Database.forURL(
-    "jdbc:mysql://localhost/tweetimagedb?user=root&password=",
+    "jdbc:mysql://localhost/TwitterContDB?user=root&password=",
     driver = "com.mysql.jdbc.Driver"
   )
 
